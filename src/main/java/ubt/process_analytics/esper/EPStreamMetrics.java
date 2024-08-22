@@ -1,16 +1,20 @@
 package ubt.process_analytics.esper;
 
+import ubt.process_analytics.utils.LossyCountingHeuristicsMiner;
 import ubt.process_analytics.utils.PROBS;
+
+import java.util.Map;
 
 public class EPStreamMetrics {
     private long eventCount;
     private long startTime;
     private long complexEventCount;
     private final PROBS config = PROBS.getInstance();
+
     /**
      * Constructor to initialize the metrics tracker.
      */
-    public EPStreamMetrics() {
+    public EPStreamMetrics(LossyCountingHeuristicsMiner hm) {
         reset();
 
         new Thread(() -> {
@@ -19,7 +23,12 @@ public class EPStreamMetrics {
 
                     Thread.sleep(this.config.getInt("ESPER_CONFIG_LOG_METRICS_IN_MS")); // 10 seconds
                     this.printMetrics();
-
+                    Map<String, Integer> activityFrequencies = hm.getActivityFrequencies();
+                    Map<String, Integer> relationFrequencies = hm.getRelationFrequencies();
+                    Map<String, Integer> controlFlowFrequencies = hm.getControlFlowFrequencies();
+                    System.out.println("Activity Frequencies"+ activityFrequencies);
+                    System.out.println("Relation Frequencies"+ relationFrequencies);
+                    System.out.println(controlFlowFrequencies);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

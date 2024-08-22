@@ -26,6 +26,7 @@ import java.util.Objects;
 import com.opencsv.exceptions.CsvValidationException;
 import ubt.process_analytics.utils.CSVProvider;
 import ubt.process_analytics.utils.EPatternRepository;
+import ubt.process_analytics.utils.LossyCountingHeuristicsMiner;
 import ubt.process_analytics.utils.PROBS;
 
 public class ESProvider {
@@ -35,12 +36,14 @@ public class ESProvider {
     private final EPStreamMetrics metrics;
     private final PROBS config = PROBS.getInstance();
 
+    private final LossyCountingHeuristicsMiner heuristicsMiner = new LossyCountingHeuristicsMiner(0.01);
+
     public ESProvider(List<ESTemplate> templates) {
         Configuration configuration = configureEsper();
 
         this.epRuntime = EPRuntimeProvider.getDefaultRuntime(configuration);
         this.deploymentService = epRuntime.getDeploymentService();
-        this.metrics = new EPStreamMetrics();
+        this.metrics = new EPStreamMetrics(this.heuristicsMiner);
 
         for (ESTemplate template : templates) {
             String epl = template.getEplQuery();
@@ -51,7 +54,6 @@ public class ESProvider {
                 for (EPStatement statement : statements) {
                     this.addListener(Objects.requireNonNull(statement));
                 }
-
             } else {
                 System.out.println(STR."ERROR Adding the following template:\{template.getTemplateName()}");
             }
@@ -124,6 +126,8 @@ public class ESProvider {
         System.out.println(event);
         try {
             Thread.sleep(this.config.getInt("ESPER_CONFIG_EVENT_LOOP_SLEEPING_TIME_IN_MS"));
+            this.heuristicsMiner.addEvent(event);
+
             this.metrics.incrementEventCount();
         } catch (InterruptedException e) {
             e.printStackTrace();
