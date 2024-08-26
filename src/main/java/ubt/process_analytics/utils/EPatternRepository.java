@@ -11,7 +11,7 @@ public enum EPatternRepository {
     INSTANTIATION_SEMANTICS_PATH(STR."\{BASE_PATH.getPath()}instantiation-semantics/"),
 
     // Basic Control Flow Patterns
-    EXCLUSIVE_CHOICE(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}exclusive_choice.epl"),
+    EXCLUSIVE_CHOICE(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}exclusive_choice.sql"),
     EXCLUSIVE_CHOICE_AS_STREAM(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}exclusive_choice_as_stream.sql"),
     PARALLEL_SPLIT(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}parallel_split.sql"),
     PARALLEL_MERGE_AS_STREAM(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}parallel_merge_as_stream.sql"),

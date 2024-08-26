@@ -45,4 +45,4 @@ SELECT * FROM PATTERN [
     #end
     #end
     )
-    ].win:time(50 sec)
+    ].win:time($time_window)

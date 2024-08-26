@@ -3,6 +3,7 @@ package ubt.process_analytics.esper;
 import ubt.process_analytics.utils.LossyCountingHeuristicsMiner;
 import ubt.process_analytics.utils.PROBS;
 
+import java.util.List;
 import java.util.Map;
 
 public class EPStreamMetrics {
@@ -14,7 +15,7 @@ public class EPStreamMetrics {
     /**
      * Constructor to initialize the metrics tracker.
      */
-    public EPStreamMetrics(LossyCountingHeuristicsMiner hm) {
+    public EPStreamMetrics(LossyCountingHeuristicsMiner hm, boolean print_heuristic_results) {
         reset();
 
         new Thread(() -> {
@@ -23,12 +24,32 @@ public class EPStreamMetrics {
 
                     Thread.sleep(this.config.getInt("ESPER_CONFIG_LOG_METRICS_IN_MS")); // 10 seconds
                     this.printMetrics();
-                    Map<String, Integer> activityFrequencies = hm.getActivityFrequencies();
-                    Map<String, Integer> relationFrequencies = hm.getRelationFrequencies();
-                    Map<String, Integer> controlFlowFrequencies = hm.getControlFlowFrequencies();
-                    System.out.println("Activity Frequencies"+ activityFrequencies);
-                    System.out.println("Relation Frequencies"+ relationFrequencies);
-                    System.out.println(controlFlowFrequencies);
+                    if (print_heuristic_results) {
+                        Map<String, Integer> activityFrequencies = hm.getActivityFrequencies();
+                        Map<String, Integer> relationFrequencies = hm.getRelationFrequencies();
+                        Map<String, Integer> controlFlowFrequencies = hm.getControlFlowFrequencies();
+
+                        System.out.println("Activity Frequencies:"+ activityFrequencies);
+                        System.out.println("Relation Frequencies:"+ relationFrequencies);
+                        System.out.println("Control Flow:"+ controlFlowFrequencies);
+
+                        // count the controlFlowFrequencies keys with a substring
+                        int orCounter = 0;
+                        int andCounter = 0;
+                        int seqCounter = 0;
+                        for (String entry : controlFlowFrequencies.keySet()) {
+                            if(entry.contains("OR")) {
+                               orCounter++;
+                            }
+                            if(entry.contains("AND")) {
+                                andCounter++;
+                            }
+                            if(entry.contains("SEQ")) {
+                                seqCounter++;
+                            }
+                        }
+                        System.out.println(STR."OR Counter: \{orCounter} AND Counter: \{andCounter} SEQ: \{seqCounter}");
+                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

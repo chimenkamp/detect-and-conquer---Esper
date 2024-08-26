@@ -1,10 +1,9 @@
 package ubt.process_analytics.utils;
 
 import ubt.process_analytics.esper.EPPMEventType;
+import ubt.process_analytics.esper.ESTemplate;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class LossyCountingHeuristicsMiner {
     private final double epsilon;
@@ -189,6 +188,111 @@ public class LossyCountingHeuristicsMiner {
         }
         return result;
     }
+
+    /**
+     * Converts detected patterns into ESTemplate objects.
+     *
+     * @return A list of ESTemplate objects representing the detected patterns.
+     */
+    public List<ESTemplate> convertToTemplates() {
+        List<ESTemplate> templates = new ArrayList<>();
+
+        // Iterate over detected control flow structures
+        for (Map.Entry<String, FrequencyData> entry : controlFlowStructures.entrySet()) {
+            String structure = entry.getKey();
+            String[] elements;
+
+            // Handle XOR (Exclusive Choice)
+            if (structure.startsWith("OR(")) {
+                elements = extractElementsFromStructure(structure);
+                templates.add(createXORTemplate(elements));
+            }
+
+            // Handle Sequence
+            else if (structure.startsWith("SEQ(")) {
+                elements = extractElementsFromStructure(structure);
+
+                templates.add(createSequenceTemplate(elements));
+            }
+
+            // Handle AND
+            else if (structure.startsWith("AND(")) {
+                elements = extractElementsFromStructure(structure);
+                templates.add(createANDTemplate(elements));
+            }
+        }
+
+        return templates;
+    }
+
+    /**
+     * Creates an XOR (Exclusive Choice) template.
+     *
+     * @param elements The elements involved in the XOR pattern.
+     * @return An ESTemplate representing the XOR pattern.
+     */
+    private ESTemplate createXORTemplate(String[] elements) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("EPPMEventType", EPPMEventType.class.getName());
+        parameters.put("time_window", "10000 sec");
+        parameters.put("es_activities", List.of(elements));
+
+        return new ESTemplate(
+                EPatternRepository.EXCLUSIVE_CHOICE,
+                parameters,
+                STR."Exclusive Choice between \{String.join(", ", elements)}"
+        );
+    }
+
+    /**
+     * Creates a Sequence template.
+     *
+     * @param elements The elements involved in the Sequence pattern.
+     * @return An ESTemplate representing the Sequence pattern.
+     */
+    private ESTemplate createSequenceTemplate(String[] elements) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("EPPMEventType", EPPMEventType.class.getName());
+        parameters.put("time_window", "10000 sec");
+        parameters.put("es_activities", List.of(elements));
+
+        return new ESTemplate(
+                EPatternRepository.C_5_MULTI_EVENT_TRIGGER,
+                parameters,
+                STR."Sequence of \{String.join(" -> ", elements)}"
+        );
+    }
+
+    /**
+     * Creates an AND template.
+     *
+     * @param elements The elements involved in the AND pattern.
+     * @return An ESTemplate representing the AND pattern.
+     */
+    private ESTemplate createANDTemplate(String[] elements) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("EPPMEventType", EPPMEventType.class.getName());
+        parameters.put("time_window", "10000 sec");
+        parameters.put("es_activities", List.of(elements));
+
+        return new ESTemplate(
+                EPatternRepository.PARALLEL_SPLIT,
+                parameters,
+                "AND between " + String.join(" and ", elements)
+        );
+    }
+
+    /**
+     * Extracts the elements from a control flow structure string.
+     *
+     * @param structure The control flow structure string.
+     * @return An array of elements involved in the structure.
+     */
+    private String[] extractElementsFromStructure(String structure) {
+        String elementsPart = structure.substring(structure.indexOf('(') + 1, structure.indexOf(')'));
+        return elementsPart.split(" OR | AND |->");
+    }
+
 
     /**
      * A helper class to store frequency data with the associated delta (error).

@@ -4,7 +4,9 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import ubt.process_analytics.utils.EPatternRepository;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -83,20 +85,38 @@ public class ESTemplate {
             if (Objects.equals(entry.getKey(), "es_activities")) {
 
                 Map<String, String> eventsMap = new HashMap<>();
-                ArrayList<String> esActivities = (ArrayList<String>) entry.getValue();
+                // Check if the value is an ArrayList
+                if (entry.getValue() instanceof ArrayList) {
+                    ArrayList<String> esActivities = (ArrayList<String>) entry.getValue();
 
-                int i = 0;
-                for (String activity : esActivities) {
-                    eventsMap.put(STR."activity_\{i + 1}", activity);
-                    i++;
+                    int i = 0;
+                    for (String activity : esActivities) {
+                        eventsMap.put(String.format("activity_%d", i + 1), activity);
+                        i++;
+                    }
                 }
+                // Check if the value is a HashMap
+                else if (entry.getValue() instanceof List) {
+                    List<String> esActivities = (List<String>) entry.getValue();
 
+                    int i = 0;
+                    for (String activity : esActivities) {
+                        eventsMap.put(String.format("activity_%d", i + 1), activity);
+                        i++;
+                    }
+
+                }
+                if(eventsMap.isEmpty()) {
+                    System.err.println("eventsMap is empty");
+                }
                 context.put("eventsMap", eventsMap);
             }
             context.put(entry.getKey(), entry.getValue());
         }
 
+
         StringWriter writer = new StringWriter();
+
         velocityEngine.evaluate(context, writer, "EPL Template", template);
 
         return writer.toString();
@@ -115,10 +135,17 @@ public class ESTemplate {
             line = STR."\{index++}\t \{line} \n";
             builder.append(line);
         }
-        return builder.toString();
+        return this.est;
     }
 
     public String getTemplateName() {
         return this.templateName;
+    }
+
+    public void saveToFile(String path) throws FileNotFoundException {
+        PrintWriter out = new PrintWriter(STR."rendered_\{path}.sql");
+        out.println(this.toString());
+        out.close();
+
     }
 }
