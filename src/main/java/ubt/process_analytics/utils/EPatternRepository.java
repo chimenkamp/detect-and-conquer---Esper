@@ -11,17 +11,19 @@ public enum EPatternRepository {
     INSTANTIATION_SEMANTICS_PATH(STR."\{BASE_PATH.getPath()}instantiation-semantics/"),
 
     // Basic Control Flow Patterns
+    INCLUSIVE_CHOICE(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}inclusive_choice.sql"),
     EXCLUSIVE_CHOICE(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}exclusive_choice.sql"),
     EXCLUSIVE_CHOICE_AS_STREAM(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}exclusive_choice_as_stream.sql"),
     PARALLEL_SPLIT(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}parallel_split.sql"),
     PARALLEL_MERGE_AS_STREAM(STR."\{BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath()}parallel_merge_as_stream.sql"),
     // RAW_TEST(BASIC_CONTROL_FLOW_PATTERNS_PATH.getPath() + "raw_test.sql"),
 
-
     // Control Flow Anti-Patterns
     DEADLOCK(STR."\{CONTROL_FLOW_ANTI_PATTERNS_PATH.getPath()}deadlock.sql"),
     INFINITE_LOOP(STR."\{CONTROL_FLOW_ANTI_PATTERNS_PATH.getPath()}Infinite Loop.sql"),
-
+    MISSING_EVENTS(STR."\{CONTROL_FLOW_ANTI_PATTERNS_PATH.getPath()}missing_events.sql"),
+    UNEXPECTED_SEQUENCE(STR."\{CONTROL_FLOW_ANTI_PATTERNS_PATH.getPath()}unexpected_sequence.sql"),
+    UNATTENDED_DECISION_POINTS(STR."\{CONTROL_FLOW_ANTI_PATTERNS_PATH.getPath()}unattended_decision_points.sql"),
 
     // Instantiation Semantics
     A_4_OCCURRED_EVENTS(STR."\{INSTANTIATION_SEMANTICS_PATH.getPath()}A-4 Occurred Events.sql"),

@@ -105,6 +105,8 @@ public class ESTemplate {
                         i++;
                     }
 
+                } else {
+                    eventsMap.put(entry.getKey(), entry.getValue().toString());
                 }
                 if(eventsMap.isEmpty()) {
                     System.err.println("eventsMap is empty");
