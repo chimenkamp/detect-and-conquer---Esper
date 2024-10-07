@@ -1,9 +1,9 @@
-#set($positiveEvents = $positiveEventsMap.keySet().toArray())
-#set($positiveEventValues = $positiveEventsMap.values().toArray())
+#set($positiveEvents = $positiveEvents.keySet().toArray())
+#set($positiveEventValues = $positiveEvents.values().toArray())
 #set($positiveEventCount = $positiveEvents.size() - 1)
 
-#set($negativeEvents = $negativeEventsMap.keySet().toArray())
-#set($negativeEventValues = $negativeEventsMap.values().toArray())
+#set($negativeEvents = $negativeEvents.keySet().toArray())
+#set($negativeEventValues = $negativeEvents.values().toArray())
 #set($negativeEventCount = $negativeEvents.size() - 1)
 
 #set($positiveEventValuesList = '')
@@ -24,6 +24,8 @@
     #end
 #end
 
+$positiveEvents
+$negativeEvents
 SELECT * FROM PATTERN [
     EVERY
     (
@@ -64,9 +66,9 @@ SELECT * FROM PATTERN [
                     #set($currentNegativeEvent = $negativeEvents[$j])
 
                     ubt.process_analytics.esper.EPPMEventType(
-                    timestamp > ${currentPositiveEvent}.timestamp AND
-                    activity = '$negativeEventValues[$j]' AND
-                    caseID = ${currentPositiveEvent}.caseID
+                        timestamp > ${currentPositiveEvent}.timestamp AND
+                        activity = '$negativeEventValues[$j]' AND
+                        caseID = ${currentPositiveEvent}.caseID
                     )
                     #if($j < $negativeEventCount)
                         OR
